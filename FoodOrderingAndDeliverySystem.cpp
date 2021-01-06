@@ -9,6 +9,8 @@ const int ITEM = 10;
 void welcomeMessage();
 void checkValidUser(int&);
 void getUserType(int&);
+void displayManagerFunc();
+void pickManagerFunc();
 void displayMenu(string[], float[]);
 float pickItem(string[], float[]);
 void displayBill(float&);
@@ -30,7 +32,7 @@ int main()
 
 	//user_type 1 refer to manager, else refer to customer
 	if (user_type == 1) {
-
+		displayManagerFunc();
 	}
 	else {
 		displayMenu(food, price);
@@ -65,7 +67,54 @@ void checkValidUser(int& user) {
 }
 
 //***************functions dedicated for manager*****************
+void displayManagerFunc() {
+	cout << "Hi! This is the place for you to change menu and track orders.\n"
+		<< "1. Create/Update Menu\n"
+		<< "2. Update prices\n"
+		<< "3. Accept orders\n"
+		<< "4. Count Total Payments per order\n"
+		<< "5. Calculate estimated delivery time\n"
+		<< "6. Calculate total sales for a day\n" << endl;
+}
 
+void pickManagerFunc()
+{
+	int Index = 0;
+	char Reply;
+
+	do {
+		cout << "\nWhich one do you want to access? ";
+		cin >> Index;
+
+		switch (Index) {
+			case 1:
+				//create/update menu function
+				break;
+			case 2:
+				//update prices function
+				break;
+			case 3: 
+				//accept orders
+				break;
+			case 4: 
+				//calculate total payments per order
+				break;
+			case 5: 
+				//calculate the estimated delivery time
+				break;
+			case 6:
+				//calculate the total sales for a day
+				break;
+			default:
+				cout << "The selection is invalid" << endl;
+				break;
+		}
+
+		cout << "Do you want to access anything else? (Y/N)\n";
+		cin >> Reply;
+	} while (Reply == 'Y' || Reply == 'y');
+
+}
 
 
 
@@ -117,10 +166,14 @@ float pickItem(string food[], float price[]) {
 	float Total = 0;
 	char reply;
 
+	ofstream file_order;
+	file_order.open("order.txt",ios::app);
+
 	do {
 		cout << "\nWhich do you want to pick? ";
 		cin >> Index;
-
+		
+		//print out to the console
 		cout << "Your current order cart:\n";
 		cout << food[Index - 1] << " -  RM " << price[Index - 1] << "\n";
 
@@ -136,6 +189,11 @@ float pickItem(string food[], float price[]) {
 		cout << "Do you want to add anything? (Y/N)\n";
 		cin >> reply;
 	} while (reply == 'Y' || reply == 'y');
+
+	//print out to a file to keep track of order
+	file_order << Total << endl;
+
+	file_order.close();
 
 	return Total;
 
