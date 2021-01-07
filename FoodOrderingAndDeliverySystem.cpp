@@ -9,6 +9,11 @@ const int ITEM = 10;
 void welcomeMessage();
 void checkValidUser(int&);
 void getUserType(int&);
+
+bool signInManager();
+bool signInCustomer();
+bool signUpCustomer();
+
 void displayManagerFunc();
 void pickManagerFunc();
 void displayMenu(string[], float[]);
@@ -32,7 +37,10 @@ int main()
 
 	//user_type 1 refer to manager, else refer to customer
 	if (user_type == 1) {
-		displayManagerFunc();
+		//only show the menu then display the manager interface
+		if (signInManager()) {
+			displayManagerFunc();
+		}
 	}
 	else {
 		displayMenu(food, price);
@@ -66,9 +74,38 @@ void checkValidUser(int& user) {
 	}
 }
 
+
+
+
 //***************functions dedicated for manager*****************
+
+//This function is for checking whether the sign in details for manager is correct or not
+bool signInManager() {
+	string Email_input,
+		Pass_input,
+		Manager_email = "jacksonrestaurant@gmail.com",
+		Manager_pass = "myrestaurantthebest1";
+
+	//check the credentials
+	do {
+		cout << "Enter the manager email: ";
+		cin >> Email_input;
+		cout << "Enter the password     : ";
+		cin >> Pass_input;
+
+		if (Email_input != Manager_email || Pass_input != Manager_pass) {
+			cout << "\nThe credentials are not correct. Please try again!" << endl;
+		}
+
+	} while (Email_input != Manager_email || Pass_input != Manager_pass);
+
+	//when credentials are verified correctly
+	cout << "\nGreat! You are now signed in to the manager section of the food order and delivery system." << endl;
+	return true;
+}
+
 void displayManagerFunc() {
-	cout << "Hi! This is the place for you to change menu and track orders.\n"
+	cout << "\nHi! This is the place for you to change menu and track orders.\n"
 		<< "1. Create/Update Menu\n"
 		<< "2. Update prices\n"
 		<< "3. Accept orders\n"
@@ -120,34 +157,66 @@ void pickManagerFunc()
 
 //***************functions dedicated for customer*****************
 
+bool signInCustomer()
+{
+	string User_email,
+		   User_pass;
+
+	ifstream File_cred;
+	File_cred.open("UserCreds.txt");
+
+	if (File_cred.is_open()) {
+		while (!File_cred.eof()) {
+			getline(File_cred, User_email, '\t');
+
+			//for handling unwanted '\n' from the strings
+			if (User_email[0] == '\n') {
+				User_email = string(User_email.begin() + 1, User_email.end());
+			}
+
+			File_cred >> User_pass;
+		}
+	}
+	else {
+		cout << "The file called UserCreds.txt does not exist" << endl;
+	}
+
+	return false;
+}
+
+bool signUpCustomer()
+{
+	return false;
+}
+
 //This function will fetch the food name and price from the menu.txt file, save into array and then display to user
 void displayMenu(string food[], float price[]) {
-	int count = 0;
+	int Count = 0;
 
-	ifstream file_menu;
-	file_menu.open("Menu.txt");
+	ifstream File_menu;
+	File_menu.open("Menu.txt");
 
 	cout << "       Food                                    Price\n"
 		<< "------------------------------------------------------------------";
 
 	//get all the items from menu.text file first and save them into array
-	if (file_menu.is_open()) {
-		while (!file_menu.eof()) {
+	if (File_menu.is_open()) {
+		while (!File_menu.eof()) {
 
-			getline(file_menu, food[count], '\t');
+			getline(File_menu, food[Count], '\t');
 
 			//for handling unwanted '\n' from the strings
-			if (food[count][0] == '\n') {
-				food[count] = string(food[count].begin() + 1, food[count].end());
+			if (food[Count][0] == '\n') {
+				food[Count] = string(food[Count].begin() + 1, food[Count].end());
 			}
 
-			file_menu >> price[count];
+			File_menu >> price[Count];
 
 			cout << fixed << setprecision(2);
-			cout << "\n[ " << count + 1 << " ] " << left << setw(50) << food[count]
-				<< "      RM " << price[count];
+			cout << "\n[ " << Count + 1 << " ] " << left << setw(50) << food[Count]
+				<< "      RM " << price[Count];
 
-			++count;
+			++Count;
 		}
 		cout << endl;
 	}
@@ -155,7 +224,7 @@ void displayMenu(string food[], float price[]) {
 		cout << "The file does not exist";
 	}
 
-	file_menu.close();
+	File_menu.close();
 }
 
 //This function will prompt user to pick the item they want and repeat until they finish their order
@@ -164,10 +233,10 @@ float pickItem(string food[], float price[]) {
 	int Index = 0,
 		Quantity = 0;
 	float Total = 0;
-	char reply;
+	char Reply;
 
-	ofstream file_order;
-	file_order.open("order.txt",ios::app);
+	ofstream File_order;
+	File_order.open("order.txt",ios::app);
 
 	do {
 		cout << "\nWhich do you want to pick? ";
@@ -187,13 +256,13 @@ float pickItem(string food[], float price[]) {
 
 
 		cout << "Do you want to add anything? (Y/N)\n";
-		cin >> reply;
-	} while (reply == 'Y' || reply == 'y');
+		cin >> Reply;
+	} while (Reply == 'Y' || Reply == 'y');
 
 	//print out to a file to keep track of order
-	file_order << Total << endl;
+	File_order << Total << endl;
 
-	file_order.close();
+	File_order.close();
 
 	return Total;
 
