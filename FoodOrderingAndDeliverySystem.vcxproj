@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FoodOrderingAndDeliverySystem.cpp" />
+    <ClCompile Include="Remake.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Menu.txt" />

@@ -2,22 +2,24 @@
 #include<string>
 #include<fstream>
 #include<iomanip>
+#include<cstdlib>
 using namespace std;
 
 const int ITEM = 10;
 
-void welcomeMessage();
+void displayWelcomeMessage();
 void checkValidUser(int&);
+void checkValidReply(char&);
 void getUserType(int&);
 
-bool signInManager();
-bool signInCustomer();
-bool signUpCustomer();
+void signInManager();
+void signInCustomer();
+bool signUpCustomer(string&, string&);
 
 void displayManagerFunc();
 void pickManagerFunc();
 void displayMenu(string[], float[]);
-float pickItem(string[], float[]);
+float pickMenuItem(string[], float[]);
 void displayBill(float&);
 
 //add a place to hold for user id and function for sign up and sign in
@@ -28,31 +30,40 @@ int main()
 {
 	int user_type = 0;
 	float total = 0;
+	char reply = 'Y';
+
 
 	string food[ITEM] = {};
 	float price[ITEM] = {};
 
-	welcomeMessage();
-	getUserType(user_type);
+	while ((reply == 'Y') || (reply == 'y')) {
+		displayWelcomeMessage();
+		getUserType(user_type);
 
-	//user_type 1 refer to manager, else refer to customer
-	if (user_type == 1) {
-		//only show the menu then display the manager interface
-		if (signInManager()) {
+		//user_type 1 refer to manager, else refer to customer
+		if (user_type == 1) {
+			//only show the menu then display the manager interface
+			signInManager();
 			displayManagerFunc();
 		}
+		else {
+			signInCustomer
+			displayMenu(food, price);
+			total = pickMenuItem(food, price);
+			displayBill(total);
+		}
+
+		cout << "Do you want to return to the welcome page?(Y/N)";
+		cin >> reply;
+		checkValidReply(reply);
 	}
-	else {
-		displayMenu(food, price);
-		total = pickItem(food, price);
-		displayBill(total);
-	}
+	
 
 	return 0;
 }
 
 //***************general functions*****************
-void welcomeMessage() {
+void displayWelcomeMessage() {
 	cout << "\t\t\t-----------------------------------------------------------------------\n"
 		<< "\t\t\t|        Welcome to Jackson Restaurant Food Order and Delivery!        |\n"
 		<< "\t\t\t-----------------------------------------------------------------------\n"
@@ -74,17 +85,31 @@ void checkValidUser(int& user) {
 	}
 }
 
+void checkValidReply(char& reply)
+{
+	while (reply != 'Y ' || reply != 'y' || reply != 'N' || reply != 'n') {
+		cout << "Too bad! Your input is invalid!\n"
+			 << "Enter Y or N only: ";
+		cin >> reply;
+	}
+}
+
 
 
 
 //***************functions dedicated for manager*****************
 
 //This function is for checking whether the sign in details for manager is correct or not
-bool signInManager() {
+void signInManager() {
 	string Email_input,
 		Pass_input,
 		Manager_email = "jacksonrestaurant@gmail.com",
 		Manager_pass = "myrestaurantthebest1";
+
+	system("cls");
+
+	cout << "You just enter as a manager!\n\n";
+
 
 	//check the credentials
 	do {
@@ -101,7 +126,6 @@ bool signInManager() {
 
 	//when credentials are verified correctly
 	cout << "\nGreat! You are now signed in to the manager section of the food order and delivery system." << endl;
-	return true;
 }
 
 void displayManagerFunc() {
@@ -117,9 +141,9 @@ void displayManagerFunc() {
 void pickManagerFunc()
 {
 	int Index = 0;
-	char Reply;
+	char Reply = 'Y';
 
-	do {
+	while (Reply == 'Y' || Reply == 'y'){
 		cout << "\nWhich one do you want to access? ";
 		cin >> Index;
 
@@ -149,7 +173,8 @@ void pickManagerFunc()
 
 		cout << "Do you want to access anything else? (Y/N)\n";
 		cin >> Reply;
-	} while (Reply == 'Y' || Reply == 'y');
+		checkValidReply(Reply);
+	}
 
 }
 
@@ -157,13 +182,25 @@ void pickManagerFunc()
 
 //***************functions dedicated for customer*****************
 
-bool signInCustomer()
+void signInCustomer()
 {
-	string User_email,
-		   User_pass;
+	string User_email, User_pass, Email_input, Pass_input;
+	bool Is_valid_email = 0,
+		 Is_valid_pass = 0;
 
 	ifstream File_cred;
 	File_cred.open("UserCreds.txt");
+
+	system("cls");
+
+	cout << "You just enter as a customer!\n\n";
+
+
+	//request for sign in details
+	cout << "Enter the your user ID(email address): ";
+	cin >> Email_input;
+	cout << "Enter the password                   : ";
+	cin >> Pass_input;
 
 	if (File_cred.is_open()) {
 		while (!File_cred.eof()) {
@@ -175,18 +212,56 @@ bool signInCustomer()
 			}
 
 			File_cred >> User_pass;
+			
+			//stop when find the exact email address
+			if (User_email == Email_input) {
+				Is_valid_email = 1;
+				break;
+			}
 		}
+
+		if (!Is_valid_email) {
+			//after checking all the creds found no similar
+			//function for sign up, if done//return true, skip to food menu
+			cout << "Your email is not found. Feel free to sign up for a new account.\n\n";
+
+			//set the both flags as true when you successfully sign up the account
+			Is_valid_email = Is_valid_pass = signUpCustomer(Email_input, Pass_input);
+
+		}
+		else {
+			//make sure the password is correct with while loop
+			while(User_pass != Pass_input) {
+				cout << "The password is incorrect. Try again:\n";
+				cin >> Pass_input;
+			}
+			Is_valid_pass = 1;
+
+		}
+		
+		if (Is_valid_email && Is_valid_pass) {
+			cout << "You just signed in successfully!" << endl;
+		}
+
 	}
 	else {
-		cout << "The file called UserCreds.txt does not exist" << endl;
+		cout << "The file called UserCreds.txt does not exist. Validation cannot run." << endl;
 	}
 
-	return false;
+	File_cred.close();
+
+	return true;
 }
 
-bool signUpCustomer()
-{
-	return false;
+void signUpCustomer(string& email, string& pass) {
+	cout << "Enter the email address for your new account : ";
+	cin >> email;
+	cout << "Enter a new password for your new account    : ";
+	cin >> pass;
+
+	//later add the validation then only return true for right format
+
+	return true;
 }
 
 //This function will fetch the food name and price from the menu.txt file, save into array and then display to user
@@ -195,6 +270,8 @@ void displayMenu(string food[], float price[]) {
 
 	ifstream File_menu;
 	File_menu.open("Menu.txt");
+
+	system("cls");
 
 	cout << "       Food                                    Price\n"
 		<< "------------------------------------------------------------------";
@@ -228,7 +305,7 @@ void displayMenu(string food[], float price[]) {
 }
 
 //This function will prompt user to pick the item they want and repeat until they finish their order
-float pickItem(string food[], float price[]) {
+float pickMenuItem(string food[], float price[]) {
 
 	int Index = 0,
 		Quantity = 0;
@@ -270,6 +347,8 @@ float pickItem(string food[], float price[]) {
 
 //This function will display the bill to the user 
 void displayBill(float& total) {
+	system("cls");
+
 	cout << fixed << setprecision(2);
 	cout << "\t\t\t\t\t\t-----------------------------------------------\n"
 		<< "\t\t\t\t\t\t        Jackson Restaurant Food Delivery\n"

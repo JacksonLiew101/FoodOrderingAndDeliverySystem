@@ -18,6 +18,9 @@
     <ClCompile Include="FoodOrderingAndDeliverySystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Remake.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Menu.txt">
