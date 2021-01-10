@@ -140,12 +140,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FoodOrderingAndDeliverySystem.cpp" />
-    <ClCompile Include="Remake.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Menu.txt" />
-    <Text Include="order.txt" />
-    <Text Include="UserCreds.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

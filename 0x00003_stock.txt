@@ -1,0 +1,10 @@
+Family Meal(Ice creamsx3, Friesx3, McChickenx3, Cokex3)	50
+McChicken(With Coke and Fries)	50
+Filet-O-Fish(With Coke and Fries)	50
+5pcs Ayam Goreng McD	50
+9pcs Ayam Goreng McD	50
+6pcs Chicken McNuggets	50
+9pcs Chicken McNuggets	50
+French Fries	50
+Coke	50
+Ice cream	50
