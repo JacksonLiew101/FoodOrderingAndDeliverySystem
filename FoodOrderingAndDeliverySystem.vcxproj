@@ -141,6 +141,19 @@
   <ItemGroup>
     <ClCompile Include="FoodOrderingAndDeliverySystem.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="0x1_menu.txt" />
+    <Text Include="0x1_order.txt" />
+    <Text Include="0x1_stock.txt" />
+    <Text Include="0x2_menu.txt" />
+    <Text Include="0x2_order.txt" />
+    <Text Include="0x2_stock.txt" />
+    <Text Include="0x3_menu.txt" />
+    <Text Include="0x3_order.txt" />
+    <Text Include="0x3_stock.txt" />
+    <Text Include="credentials.txt" />
+    <Text Include="restaurant.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -19,4 +19,39 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="0x1_menu.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="0x1_order.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="0x1_stock.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="0x2_menu.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="0x2_order.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="0x2_stock.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="0x3_menu.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="0x3_order.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="0x3_stock.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="credentials.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="restaurant.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
