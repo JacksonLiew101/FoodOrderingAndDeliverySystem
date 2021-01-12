@@ -139,7 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FoodOrderingAndDeliverySystem.cpp" />
+    <ClCompile Include="Food_Ordering_System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="0x1_menu.txt" />
