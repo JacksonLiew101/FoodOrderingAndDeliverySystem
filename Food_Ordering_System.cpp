@@ -107,18 +107,89 @@ int pickMenuItem(string type) {
 	return Choice;
 }
 
+//displayCustomerInterface will indicate it is a Customer Interface
+void displayCustomerInterface(string& user_ID) {
+	system("cls");
+	cout << "-----------------\n"
+		<< "|    Customer    |\n"
+		<< "-----------------\n" << endl;
+	cout << "You have signed in as " << user_ID << endl;
+}
+
+//displayCustomerMenu will display all the functions customer can access
+void displayCustomerMenu(string& user_ID) {
+	displayCustomerInterface(user_ID);
+
+	cout << "\t\t\t-----------------------------------\n"
+		<< "\t\t\t|          Customer Menu           |\n"
+		<< "\t\t\t-----------------------------------\n"
+		<< "0. Sign out current account\n"
+		<< "1. Order Food\n" << endl;
+
+}
+
+//validateCustomerPick will validate during pickCustomerFunction Function
+void validateCustomerPick(int& choice) {
+	while (choice != 0 && choice != 1) {
+		cout << "Invalid item! Pick again.(0 or 1 only)\n"
+			<< "Item number: ";
+		cin >> choice;
+		clearInputBuffer();
+	}
+}
+
+//pickCustomerFunction will request input for picking customer functions 
+void pickCustomerFunction(int& choice) {
+	cout << "\nWhich customer function you want to access now?\n"
+		<< "Item number: ";
+	cin >> choice;
+	clearInputBuffer();
+	validateManagerPick(choice);
+}
+
+void orderFoodMOD(string& user_ID) {
+	displayCustomerInterface(user_ID);
+
+	 
+}
+
+void runCustomerFunction(int& choice, string& user_ID) {
+	switch (choice)
+	{
+	case 0:
+		displaySignOutMessage();
+		break;
+	case 1:
+		orderFoodMOD(user_ID);
+		break;
+	default:
+		cout << "Opps, something went wrong!" << endl;
+		break;
+	}
+
+}
+
 //customerInterfaceMOD will let customer to order food and make payment
 void customerInterfaceMOD(char& repeat, string& user_ID) {
+
+	int Choice = 0;
+
 	//customer module
 	while ((repeat == 'Y') || (repeat == 'y')) {
-		//diplay message
-		system("cls");
-		cout << " This is the customer interface!" << endl;
-		cout << "You have signed in as " << user_ID << endl;
+		
+		displayCustomerMenu(user_ID);
 
-		//order food
+		pickCustomerFunction(Choice);
 
-		askRepeat(repeat, "create new order");
+		runCustomerFunction(Choice, user_ID);
+
+		//0 is sign out, hence other than 0 will ask whether to create new order
+		if (Choice != 0) {
+			askRepeat(repeat, "create new order");
+		}
+		else {
+			break;
+		}
 	}
 }
 
@@ -338,7 +409,7 @@ void createNewRestaurantMOD(string& user_ID) {
 	string Restaurant_name, Restaurant_ID;
 	int Array_size = 0;
 
-	//create dynamic arrays
+	//create dynamic arrays, the reason I used this because I don't need the array later on, better to destroy the array after using it
 	string** restaurant;
 	restaurant = new string * [MAX_RESTAURANT];
 	for (int i = 0; i < MAX_RESTAURANT; ++i) {
@@ -618,7 +689,7 @@ bool signInMOD(char& user_type, string& user_ID) {
 // Manager part                                       
 //*************************************************************************************************************************
 
-//displayManager Interface will indicate it is a Manager Interface
+//displayManagerInterface will indicate it is a Manager Interface
 void displayManagerInterface(string& restaurant_name, string& user_ID) {
 	system("cls");
 	cout << "-----------------\n"
