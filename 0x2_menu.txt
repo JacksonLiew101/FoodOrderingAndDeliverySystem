@@ -1,10 +1,10 @@
-Margherita Special Pizza	13.05
-Chicken Super Papa's Pizza	13.05
-Beef Pepperoni Pizza	13.05
-Hawaiian BBQ Beef Pizza	13.65
-Spicy Italian Pizza	13.65
-Onion Rings	6.25
+Margherita Special Pizza	13.00
+Chicken Super Papa's Pizza	13.00
+Beef Pepperoni Pizza	13.00
+Hawaiian BBQ Beef Pizza	13.60
+Spicy Italian Pizza	13.60
+Onion Rings	6.20
 Cheesy Potato Wedges	7.20
 Classic Papa Wings	17.90
-Pepsi	4.25
-7 Up	4.25
+Pepsi	4.20
+7 Up	4.20

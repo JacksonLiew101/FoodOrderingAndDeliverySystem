@@ -13,9 +13,15 @@ using namespace std;
 
 // Global Constants declaration
 const int MAX_COLUMN = 3,
+		MAX_ROW = 2,
 		MAX_CREDS = 50,
 		MAX_RESTAURANT = 20,
-		MAX_ITEM = 10;
+		MAX_ITEM = 10,
+		MINUTES_PER_HOUR = 60,
+		AVERAGE_PREP_TIME = 15,
+		INITIAL_STOCK = 50;
+const float AVERAGE_KM_PER_HOUR = 60,
+			RATE_PER_KM = 0.50;
 const string PASS_FLAG = "0xCD",
 			 BASE_ID = "0x";
 
@@ -43,6 +49,7 @@ void displayManagerMenu(string&, string&);
 void validateManagerPick(int&);
 void pickManagerFunction(int&);
 void fetchRestaurantDetails(string&, string&, string&);
+int pickMenuItem(string);
 void updateMenuMOD(string&, string&, string&, string);
 void checkStockAvailabilityMOD(string&, string&, string&);
 void checkOrderMOD(string&, string&, string&, string);
@@ -79,11 +86,11 @@ void openRestaurantFile(fstream& handle, string& ID, char type) {
 void displayFoodMenu(string item[], float price[]) {
 	cout << "\n                    Food                                      Price(RM)    " << endl;
 	for (int i = 0; i < MAX_ITEM; ++i) {
-		cout << right << setw(2) << i+1 << ". " << left << setw(60) << item[i] << "| " << price[i] << " |" << endl;
+		cout << right << setw(2) << i+1 << ". " << left << setw(60) << item[i] << "| " << fixed << setprecision(2) << price[i] << " |" << endl;
 	}
 }
 
-//validatePickMenu will validate during pickMenuItem Function
+//validatePickMenu will validate during pickMenuItem and  Function
 void validatePickMenu(int& choice) {
 	while (choice < 1 || choice > 10) {
 		cout << "\nInvalid item! Pick again.(From 1 to 10 only)\n"
@@ -91,20 +98,6 @@ void validatePickMenu(int& choice) {
 		cin >> choice;
 		clearInputBuffer();
 	}
-}
-
-//pickMenuItem will request input for picking one of the item on menu
-int pickMenuItem(string type) {
-
-	int Choice = 0;
-
-	cout << "\nWhich menu " << type << " you want to change now?\n"
-		<< "Item number: ";
-	cin >> Choice;
-	clearInputBuffer();
-	validatePickMenu(Choice);
-
-	return Choice;
 }
 
 //displayCustomerInterface will indicate it is a Customer Interface
@@ -147,10 +140,429 @@ void pickCustomerFunction(int& choice) {
 	validateManagerPick(choice);
 }
 
-void orderFoodMOD(string& user_ID) {
+void displayRestaurantList(string restaurant[][MAX_COLUMN], int& count, string& user_ID) {
+
+	//fetch the restaurant data from files
+	ifstream File_restaurant;
+	File_restaurant.open("restaurant.txt");
+
+	if (File_restaurant.is_open()) {
+		while (!File_restaurant.eof() && (count < MAX_RESTAURANT)) {
+			
+			//store the restaurant name
+			getline(File_restaurant, restaurant[count][0], '\t');
+
+			//remove '\n' in the string
+			if (restaurant[count][0][0] == '\n') {
+				restaurant[count][0] = string(restaurant[count][0].begin() + 1, restaurant[count][0].end());
+			}
+
+			//store the restaurant ID
+			File_restaurant >> restaurant[count][1];
+
+			//store the related manager user_ID
+			File_restaurant >> restaurant[count][2];
+			
+			//count the number of restaurant available
+			++count;
+		}
+	}
+	else {
+		cout << "The restaurant.txt file does not exist" << endl;
+	}
+
+	File_restaurant.close();
+
+	//output the restaurant list
+	displayCustomerInterface(user_ID);
+	cout << "\t\t\t-----------------------------------\n"
+		 << "\t\t\t|      Restaurant Available       |\n"
+		 << "\t\t\t-----------------------------------\n" << endl;
+	for (int i = 0; i < count; ++i) {
+		cout << i + 1 << ". " << restaurant[i][0] << endl;
+	}
+
+
+}
+
+//validateRestaurantPick will validate during pickRestaurant Function
+void validateRestaurantPick(int& choice, int& number) {
+	while (choice < 1 || choice > number) {
+		cout << "Invalid item! Pick again.(From 1 to " << to_string(number) << " only)\n"
+			<< "Item number: ";
+		cin >> choice;
+		clearInputBuffer();
+	}
+}
+
+void pickRestaurant(int& choice, int& number) {
+	cout << "\nWhich restaurant do you want to order from?\n"
+		<< "Restaurant no: ";
+	cin >> choice;
+	clearInputBuffer();
+	validateRestaurantPick(choice, number);
+
+}
+
+//fetch necessary menu and stock data from specific restaurant into array
+void fetchMenuAndStock(string ID, string item[], float price[], int stock[]) {
+
+	fstream File_menu, File_stock;
+	openRestaurantFile(File_menu, ID, 'm');
+	openRestaurantFile(File_stock, ID, 's');
+
+	//fetch menu item and price and store into array
+	if (File_menu.is_open()) {
+		for (int i = 0; i < MAX_ITEM; ++i) {
+			
+			//store the menu item
+			getline(File_menu, item[i], '\t');
+
+			//remove '\n' in the string
+			if (item[i][0] == '\n') {
+				item[i] = string(item[i].begin() + 1, item[i].end());
+			}
+
+			//store the item price
+			File_menu >> price[i];
+		}
+	}
+	else {
+		cout << "The " << ID << "_menu.txt file does not exist" << endl;
+	}
+
+
+	//fetch stock item and quantity and store into array
+	if (File_stock.is_open()) {
+		for (int i = 0; i < MAX_ITEM; ++i) {
+
+			//store the stock item
+			getline(File_stock, item[i], '\t');
+
+			//remove '\n' in the string
+			if (item[i][0] == '\n') {
+				item[i] = string(item[i].begin() + 1, item[i].end());
+			}
+
+			//store the stock availability
+			File_stock >> stock[i];
+		}
+	}
+	else {
+		cout << "The " << ID << "_stock.txt file does not exist" << endl;
+	}
+
+	File_menu.close();
+	File_stock.close();
+}
+
+void validateOrderAvailability(float& quantity,int& choice, int stock[]) {
+	while (quantity>stock[choice-1]) {
+		cout << "\nOpps, the order is unable to fullfill due to limited availability\n"
+			<< "\nPlease order less than " << stock[choice - 1] << "!" << endl;
+		cin >> quantity;
+		clearInputBuffer();
+	}
+}
+
+void getOrderItem(int& choice) {
+	cout << "\nWhich menu item do you want to order?\n"
+		<< "Item number: ";
+	cin >> choice;
+	clearInputBuffer();
+	validatePickMenu(choice);
+}
+
+void getOrderQuantity(int& choice, float order[][MAX_ITEM], int stock[]) {
+	cout << "How many do you want to order?\n";
+	cin >> order[0][choice - 1];
+	validateOrderAvailability(order[0][choice - 1], choice, stock);
+}
+
+//calculate the total amount for specific item
+void calculateAndUpdateOrderPrice(int& choice, float order[][MAX_ITEM], float price[]) {
+
+	//total amount = quantity * price per item
+	order[1][choice - 1] = order[0][choice - 1] * price[choice - 1];
+}
+
+float calculateTotalAmount(float order[][MAX_ITEM]) {
+	float Total=0;
+
+	for (int i = 0; i < MAX_ITEM; ++i) {
+
+		//overall sum += total amount for the specific item only if it containt >0 quantity
+		if (order[0][i] > 0) {
+			Total += order[1][i];
+		}
+		
+	}
+
+	return Total;
+}
+
+void displayCurrentOrder(float order[][MAX_ITEM], string item[], float total_amount) {
+	cout << "\nYour current order:\n";
+	for (int i = 0; i < MAX_ITEM; ++i) {
+
+		//only print out the specific item when customer order it
+		if (order[0][i] > 0) {
+			cout << left << setw(50) << item[i] << setw(3) << "-" << order[0][i] << " -  RM" << fixed << setprecision(2) << order[1][i] << endl;
+		}
+	}
+	cout << endl;
+	cout << right << setw(60) << "Total order amount: RM" << fixed << setprecision(2) << total_amount << endl;
+}
+
+//get order repeatedly until user finish
+void getAndTrackOrderMOD(int& choice, float& total_amount, float order[][MAX_ITEM], string item[], float price[], int stock[]) {
+	
+	char Repeat = 'y';
+
+	while (Repeat == 'y' || Repeat == 'Y') {
+
+		getOrderItem(choice);
+
+		getOrderQuantity(choice, order, stock);
+
+		calculateAndUpdateOrderPrice(choice, order, price);
+
+		total_amount = calculateTotalAmount(order);
+
+		displayCurrentOrder(order, item, total_amount);
+
+		askRepeat(Repeat, "add other item");
+	}
+}
+
+void validateDeliveryDistance(float& distance) {
+	while (distance < 0 || distance>20) {
+		cout << "\nSorry, your distance is not available for the food delivery.\n"
+			<< "Distance for delivery(km): ";
+		cin >> distance;
+		clearInputBuffer();
+	}
+}
+
+void getDeliveryDistance(float& distance, string user_ID) {
+	displayCustomerInterface(user_ID);
+	cout << "\nThe restaurant is in the city\n"
+		<< "How far are you away from the restaurant?\n"
+		<< "[Disclaimer: We accept maximum distance of 20km only]\n\n"
+		<< "Distance for delivery(km): ";
+	cin >> distance;
+	clearInputBuffer();
+	validateDeliveryDistance(distance);
+}
+
+int calculateDeliveryTime(float& distance) {
+
+	return (int)(distance / AVERAGE_KM_PER_HOUR * MINUTES_PER_HOUR) + AVERAGE_PREP_TIME;
+}
+
+float calculateDeliveryFee(float& distance) {
+	return distance * RATE_PER_KM;
+}
+
+// update all order details to file
+void updateOrderAndStockFile(string& order_ID,string& restaurant_ID, float& total, int& time, float order[][MAX_ITEM], string item[], int stock[]) {
+
+	int Count_order = 0;
+	string Order_ID[MAX_CREDS] = {};
+	float Order_details[MAX_ROW][MAX_CREDS] = {};
+	//first row is for grand total, second row is for total time
+
+	fstream File_order, File_stock;
+	openRestaurantFile(File_order, restaurant_ID, 'o');
+	openRestaurantFile(File_stock, restaurant_ID, 's');
+
+	//fetch all order into array first
+	if (File_order.is_open()) {
+		while (!File_order.eof() && Count_order<MAX_CREDS ) {
+
+			//store order id
+			File_order >> Order_ID[Count_order];
+
+			//remove '\n' in the string
+			if (Order_ID[Count_order][0] == '\n') {
+				Order_ID[Count_order] = string(Order_ID[Count_order].begin() + 1, Order_ID[Count_order].end());
+			}
+
+			//store total amount
+			File_order >> Order_details[0][Count_order];
+
+			//store delivery time
+			File_order >> Order_details[1][Count_order];
+
+			++Count_order;
+		}
+	}
+	else {
+		cout << "The " << restaurant_ID << "_order.txt file does not exist" << endl;
+	}
+	File_order.close();
+
+	//for new file, it will automatically Count_order = 1, this line is to avoid outputing empty line later
+	if (Count_order == 1 && Order_ID[0] < " ") {
+		Count_order = 0;
+	}
+
+	//add the new order to the array first
+	Order_ID[Count_order] = order_ID;
+	Order_details[0][Count_order] = total;
+	Order_details[1][Count_order] = time;
+
+	//open the file again for rewriting order.txt
+	openRestaurantFile(File_order, restaurant_ID, 'o');
+	for (int i = 0; i <= Count_order; ++i) {
+
+		//this format is for the total amount while inner one is for time
+		cout << fixed << setprecision(2);
+		if (i == Count_order) {
+			File_order << Order_ID[i] << "\t" << Order_details[0][i] << "\t" << Order_details[1][i];
+		}
+		else {
+			File_order << Order_ID[i] << "\t" << Order_details[0][i] << "\t" <<  Order_details[1][i] << endl;
+		}
+		
+	}
+	File_order.close();
+
+	//update the stock array first, the reason I do at last, because need to comfirm user really gonna order stuff
+	for (int i = 0; i < MAX_ITEM; ++i) {
+
+		//if the user have specific number for order for the item then only update the stock array
+		if (order[0][i] > 0) {
+			stock[i] -= (int)order[0][i];
+		}
+	}
+
+	//start rewriting stock.txt file
+	for (int i = 0; i < MAX_ITEM; ++i) {
+
+		if (i == (MAX_ITEM - 1)) {
+			File_stock << item[i] << "\t" << stock[i];
+		}
+		else {
+			File_stock << item[i] << "\t" << stock[i] << endl;
+		}
+		
+	}
+	File_stock.close();
+}
+
+void displayBill(string& user_ID, string& restaurant_name, string& order_ID, float order[][MAX_ITEM], string item[], float& total, float& delivery_fee, float& grand_total, int& time) {
+	
 	displayCustomerInterface(user_ID);
 
-	 
+	//header for the bill
+	cout << "\n-----------------------------------------------------------------------------------\n"
+		 << "                       Food Order from " << restaurant_name << "\n\n"
+		 << "Order ID: " << order_ID << endl;
+
+	//show every item customer order
+	displayCurrentOrder(order, item, total);
+
+	//lower half of the bill
+	cout << fixed << setprecision(2);
+	cout << right << setw(60) << "Delivery fee: RM" << delivery_fee << "\n"
+		 << right << setw(60) << "Grand Total Billable: RM" << grand_total << "\n"
+		 << "-----------------------------------------------------------------------------------\n"
+		 << "                     THANK YOU FOR ORDERING! Your order  \n"
+		 << "                  will be delivered in the next " << time << " minutes" << endl;
+	
+}
+
+void validateMakePayment(int& choice) {
+	while (choice != 1 && choice != 2) {
+		cout << "\nInvalid payment method. Pick 1 or 2 only\n"
+			 << "Your payment method: ";
+		cin >> choice;
+		clearInputBuffer();
+	}
+}
+
+void makePayment() {
+	int Choice;
+
+	cout << "\nHow do you want to make payment?\n"
+		<< "1. Cash On Delivery\n"
+		<< "2. Online Banking\n"
+		<< "\nYour payment method: ";
+	cin >> Choice;
+	clearInputBuffer;
+	validateMakePayment(Choice);
+
+	if (Choice == 1) {
+		cout << "\nNice. You will pay via cash on delivery when the food delivery reach your place. Enjoy your food later! XD" << endl;
+	}
+	else if (Choice == 2) {
+		cout << "\nNice. You already paid via online banking. Enjoy your food later! XD" << endl;
+	}
+	else {
+		cout << "\nOpps, something went wrong!" << endl;
+	}
+}
+
+void orderFoodMOD(string& user_ID) {
+
+	//reason for static is because you can keep counting the order if the program didn't close
+	static int Count_order = 1000;
+
+	int No_restaurant = 0,
+		Choice = 0,
+		Delivery_time = 0;
+	float Total_order_amount = 0,
+		Grand_total_bill = 0,
+		Delivery_distance = 0,
+		Delivery_fee = 0;
+	string Selected_restaurant_name, Selected_restaurant_ID, Order_ID;
+
+	string Restaurant[MAX_RESTAURANT][MAX_COLUMN] = {}, 
+		   Item[MAX_ITEM] = {};
+	int Stock[MAX_ITEM] = {};
+	float Price[MAX_ITEM] = {},
+		  OrderQuantityandPrice[MAX_ROW][MAX_ITEM] = {};
+	//for Order array first line is for order quantity, second line is for total amount for the item
+
+	displayRestaurantList(Restaurant, No_restaurant, user_ID);
+
+	pickRestaurant(Choice, No_restaurant);
+	
+	//store the choosen restaurant name and id from array to a variable first, later easier to know
+	Selected_restaurant_name = Restaurant[Choice - 1][0];
+	Selected_restaurant_ID = Restaurant[Choice - 1][1];
+
+	//fetch necessary menu and stock data from specific restaurant into array
+	fetchMenuAndStock(Selected_restaurant_ID, Item, Price, Stock);
+
+	//show the menu from the restaurant
+	displayCustomerInterface(user_ID);
+	cout << "\nThis is menu from the restaurant called " << Selected_restaurant_name << endl;
+	displayFoodMenu(Item, Price);
+	
+	getAndTrackOrderMOD(Choice, Total_order_amount, OrderQuantityandPrice, Item, Price, Stock);
+
+	getDeliveryDistance(Delivery_distance, user_ID);
+
+	//update delivery time and delivery fee
+	Delivery_time = calculateDeliveryTime(Delivery_distance);
+	Delivery_fee = calculateDeliveryFee(Delivery_distance);
+
+	//calculate the grand total of the bill
+	Grand_total_bill = Total_order_amount + Delivery_fee;
+
+	//create order_ID, it is here because we only need when the user successfully order 
+	++Count_order;
+	Order_ID = user_ID + to_string(Count_order);
+
+	//update all order details to file
+	updateOrderAndStockFile(Order_ID,Selected_restaurant_ID, Grand_total_bill, Delivery_time, OrderQuantityandPrice, Item, Stock);
+
+	displayBill(user_ID, Selected_restaurant_name, Order_ID, OrderQuantityandPrice, Item, Total_order_amount, Delivery_fee, Grand_total_bill, Delivery_time);
+
+	makePayment();
+
 }
 
 void runCustomerFunction(int& choice, string& user_ID) {
@@ -236,9 +648,10 @@ int main()
 // General Functions                                  
 //************************************************************************************************************************
 
-//clearInputBuffer will remove all the unwanted input buffer first before next input(only for 'cin' type input)
+//clearInputBuffer will remove all the unwanted input buffer first before next input(especially for 'cin' type input)
 void clearInputBuffer() {
-	/*test case:
+	/*Overall purpose is to remove all unwanted input after accidentally type space' '
+	test case:
 	Enter your User ID: hey there
 	>> 'hey' will be save into the variable, 'there' will be remove*/
 	while (getchar() != '\n') cin.clear();
@@ -385,11 +798,11 @@ void createMenu(string& restaurant_ID) {
 			//update to menu and stock file
 			if (i == (MAX_ITEM - 1)) {
 				File_menu << Item << "\t" << fixed << setprecision(2) << Price;
-				File_stock << Item << "\t" << 50;
+				File_stock << Item << "\t" << INITIAL_STOCK;
 			}
 			else {
 				File_menu << Item << "\t" << fixed << setprecision(2) << Price << "\n";
-				File_stock << Item << "\t" << 50 << "\n";
+				File_stock << Item << "\t" << INITIAL_STOCK << "\n";
 			}
 			
 		}
@@ -774,6 +1187,20 @@ void fetchRestaurantDetails(string& name, string& restaurant_ID, string& user_ID
 	File_restaurant.close();
 }
 
+//pickMenuItem will request input for picking one of the item on menu
+int pickMenuItem(string type) {
+
+	int Choice = 0;
+
+	cout << "\nWhich menu " << type << " you want to change now?\n"
+		<< "Item number: ";
+	cin >> Choice;
+	clearInputBuffer();
+	validatePickMenu(Choice);
+
+	return Choice;
+}
+
 //updateMenuMOD will let manager to update specific item/price on the menu and update to files
 void updateMenuMOD(string& restaurant_name, string& restaurant_ID, string& user_ID, string type) {
 
@@ -846,11 +1273,11 @@ void updateMenuMOD(string& restaurant_name, string& restaurant_ID, string& user_
 
 		if (j == (MAX_ITEM - 1)) {
 			File_menu << Item[j] << "\t" << fixed << setprecision(2) << Price[j];
-			File_stock << Item[j] << "\t" << 50;
+			File_stock << Item[j] << "\t" << INITIAL_STOCK;
 		}
 		else {
 			File_menu << Item[j] << "\t" << fixed << setprecision(2) << Price[j] << "\n";
-			File_stock << Item[j] << "\t" << 50 << "\n";
+			File_stock << Item[j] << "\t" << INITIAL_STOCK << "\n";
 		}
 	}
 

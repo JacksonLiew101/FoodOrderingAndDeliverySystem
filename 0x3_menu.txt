@@ -1,10 +1,10 @@
-Family Meal(Ice creamsx3, Friesx3, McChickenx3, Cokex3)	52.44
-McChicken(With Coke and Fries)	10.51
-Filet-O-Fish(With Coke and Fries)	13.21
-5pcs Ayam Goreng McD	30.19
-9pcs Ayam Goreng McD	51.89
-6pcs Chicken McNuggets	10.09
-9pcs Chicken McNuggets	13.09
-French Fries	6.13
-Coke	4.53
-Ice cream	2.09
+Family Meal(Ice creamsx3, Friesx3, McChickenx3, Cokex3)	52.40
+McChicken(With Coke and Fries)	10.50
+Filet-O-Fish(With Coke and Fries)	13.20
+5pcs Ayam Goreng McD	30.10
+9pcs Ayam Goreng McD	51.80
+6pcs Chicken McNuggets	10.00
+9pcs Chicken McNuggets	13.00
+French Fries	6.10
+Coke	4.50
+Ice cream	2.00
