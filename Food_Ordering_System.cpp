@@ -36,7 +36,6 @@ void displayFoodMenu(string, float);
 void validatePickMenu(int&);
 void validatePrice(float&);
 void displayWelcomeMessage();
-void displayWelcomeMessage();
 void getCredentials(string&, string&);
 void validateUserType(char&);
 void getUserType(char&);
@@ -224,12 +223,13 @@ void validatePrice(float& price) {
 
 //displayWelcomeMessage will display welcome interface
 void displayWelcomeMessage() {
+	
 	system("cls");
 
 	cout << "\t\t\t-----------------------------------------------------------------------\n"
-		<< "\t\t\t|             Welcome to YUMYUM Food Order and Delivery!               |\n"
-		<< "\t\t\t-----------------------------------------------------------------------\n"
-		<< "\t\t\tA great place for you to order at the comfort of your own place" << endl;
+		 << "\t\t\t|             Welcome to YUMYUM Food Order and Delivery!               |\n"
+		 << "\t\t\t-----------------------------------------------------------------------\n"
+		 << "\t\t\tA great place for you to order at the comfort of your own place" << endl;
 }
 
 //getCredentials will request input for id and password
