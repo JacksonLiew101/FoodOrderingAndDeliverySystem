@@ -297,6 +297,7 @@ void createRestaurantFiles(string& restaurant_ID) {
 	File_order.close();
 
 	cout << "\n\nFiles for your restaurant are created successfully!" << endl;
+	system("pause");
 }
 
 //getItemAndPrice will request input for menu item and price
@@ -329,6 +330,8 @@ void createMenu(string& restaurant_ID) {
 	File_menu.open(restaurant_ID + "_menu.txt");
 	File_stock.open(restaurant_ID + "_stock.txt");
 
+	displayCreateMenuMessage();
+
 	//create menu and update stock
 	if (File_menu.is_open() && File_stock.is_open()) {
 
@@ -339,6 +342,7 @@ void createMenu(string& restaurant_ID) {
 			getItemAndPrice(Item, Price, i);
 
 			//update to menu and stock file
+			//the if else statement is to ensure the last line doesn't add a new line
 			if (i == (MAX_ITEM - 1)) {
 				File_menu << Item << "\t" << fixed << setprecision(2) << Price;
 				File_stock << Item << "\t" << INITIAL_STOCK;
@@ -410,18 +414,6 @@ void createNewRestaurantMOD(string& user_ID) {
 	restaurant[Array_size][0] = Restaurant_name;
 	restaurant[Array_size][1] = Restaurant_ID;
 	restaurant[Array_size][2] = user_ID;
-
-	//Test this when change the previous functions
-	/*
-	cout << "This is testing for latest changes of array" << endl;
-	for (int i = 0; i <= Array_size; ++i) {
-		for (int j = 0; j < MAX_COLUMN; ++j) {
-			cout << restaurant[i][j] << "\t";
-		}
-		cout << endl;
-	}
-	system("pause");
-	*/
 
 	//add data into file
 	ofstream File_change;
@@ -501,18 +493,6 @@ void signUpMOD(char& user_type, string& user_ID) {
 	}
 	File_creds.close();
 
-	//Test this when change the previous functions
-	/*
-	cout << "This is testing for saving data from file to array" << endl;
-	for (int i = 0; i <= Array_size; ++i) {
-		for (int j = 0; j < 3; ++j) {
-			cout << creds[i][j] << "\t";
-		}
-		cout << endl;
-	}
-	system("pause");
-	*/
-
 	getUserType(user_type);
 
 	//for customer sign up
@@ -539,19 +519,6 @@ void signUpMOD(char& user_type, string& user_ID) {
 	creds[Array_size][0] = user_ID;
 	creds[Array_size][1] = Input_password;
 	creds[Array_size][2] = user_type;
-
-	//test this after changing previous function
-	/*
-	cout << "This is testing for updating" << endl;
-	for (int i = 0; i <= Array_size; ++i) {
-		if (creds[i][0] < " ") break;
-		for (int j = 0; j < 3; ++j) {
-			cout << creds[i][j] << "\t";
-		}
-		cout << endl;
-	}
-	system("pause");
-	*/
 
 	//add data into file
 	ofstream File_change;
@@ -748,7 +715,8 @@ void updateMenuMOD(string& restaurant_name, string& restaurant_ID, string& user_
 
 	displayManagerInterface(restaurant_name, user_ID);
 
-	cout << "\nYou can change " << type << " in the menu here" << endl;
+	cout << "\nYou can change " << type << " in the menu here\n"
+		 << "All the stock quantity will be reset after the changes!" << endl;
 
 	fstream File_menu, File_stock;
 	openRestaurantFile(File_menu, restaurant_ID, 'm');
@@ -801,10 +769,11 @@ void updateMenuMOD(string& restaurant_name, string& restaurant_ID, string& user_
 		askRepeat(Repeat, "change other " + type);
 	}
 
-	//open the menu file again and rewrite everything into the menu file and stock ifle
+	//open the menu file again and rewrite everything into the menu file and stock file
 	openRestaurantFile(File_menu, restaurant_ID, 'm');
 	for (int j = 0; j < MAX_ITEM; ++j) {
 
+		//the if else statement is to ensure the final line of output doesn't add a new line
 		if (j == (MAX_ITEM - 1)) {
 			File_menu << Item[j] << "\t" << fixed << setprecision(2) << Price[j];
 			File_stock << Item[j] << "\t" << INITIAL_STOCK;
@@ -1028,7 +997,7 @@ void pickCustomerFunction(int& choice) {
 		<< "Item number: ";
 	cin >> choice;
 	clearInputBuffer();
-	validateManagerPick(choice);
+	validateCustomerPick(choice);
 }
 
 //displayRestaurantList will get the restaurant details from file, save to array and display the names

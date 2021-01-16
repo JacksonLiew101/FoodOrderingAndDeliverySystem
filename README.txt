@@ -8,13 +8,15 @@ their online restaurant
 Make sure you have at least these text files in the same folder:
 
 credentials.txt, restaurant.txt, 0x1_menu, 0x1_order, 0x1_stock, 0x2_menu,
-0x2_order, 0x2_stock, 0x3_menu, 0x3_order, 0x3_stock
+0x2_order, 0x2_stock, 0x3_menu, 0x3_order, 0x3_stock, 0x4_menu, 0x4_order, 0x4_stock
 
 Important on files:
 
-Ensure the '|' end after the last character of the content(e.g. "item 50|")
+*Ensure the '|' end after the last character of the content(e.g. "item 50|")
 and not the new line for the file that contain contents
 This is to make sure the file updating runs well with the program
+
+*The files's content are based after the screenshots of input and output in the documentation
 
 ## Using the program
 

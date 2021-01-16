@@ -1,3 +1,4 @@
 Jackie Restaurant	0x1	jackie
 Papa's John	0x2	papa
 McDonald's	0x3	mcd
+Tommy Seafood Restaurant	0x4	tommy
